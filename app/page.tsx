@@ -1,0 +1,459 @@
+'use client';
+
+import { useMemo, useState } from 'react';
+
+type Product = {
+  id: number;
+  name: string;
+  price: number;
+  image: string;
+  category: string;
+  description: string;
+  soldOut?: boolean;
+};
+
+type CartItem = Product & { quantity: number };
+
+const products: Product[] = [
+  { id: 2, name: 'Blonde Water Weave 26–30 Inches', price: 580, image: '/images/product-2.jpeg', category: 'Water Weave', description: 'A soft blonde water-weave style with a beautiful flowing finish.' },
+  { id: 3, name: 'Black Bob 10–12 Inches', price: 420, image: '/images/product-3.jpeg', category: 'Bob', description: 'A sleek, classic black bob for an effortless everyday look.' },
+  { id: 4, name: 'Brown Bob 10–12 Inches', price: 420, image: '/images/product-4.jpeg', category: 'Bob', description: 'A warm brown bob with a neat, polished silhouette.' },
+  { id: 5, name: 'Ruby Human Blend', price: 600, image: '/images/product-5.jpeg', category: 'Human Blend', description: 'A rich ruby-toned human blend designed for a bold statement.' },
+  { id: 6, name: 'Blonde Touch 26 Inches', price: 710, image: '/images/product-6.jpeg', category: 'Long Hair', description: 'Long blonde glamour with a soft, luxurious finish.' },
+  { id: 7, name: 'Maroon 30 Inches', price: 580, image: '/images/product-7.jpeg', category: 'Long Hair', description: 'A striking maroon shade with dramatic 30-inch length.' },
+  { id: 8, name: 'Red-Maroon Blunt Cut 26 Inches', price: 600, image: '/images/product-8.jpeg', category: 'Blunt Cut', description: 'A bold red-maroon blunt cut with a clean, confident shape.' },
+  { id: 9, name: 'Ginger with Dark Roots 40 Inches', price: 750, image: '/images/product-9.jpeg', category: 'Long Hair', description: 'Extra-long ginger hair with contrasting dark roots.' },
+  { id: 10, name: 'Loviey', price: 580, image: '/images/product-10.jpeg', category: 'Synthetic', description: 'A versatile synthetic style made for a beautiful finished look.' },
+  { id: 11, name: 'Black Queen 32 Inches', price: 650, image: '/images/product-11.jpeg', category: 'Long Hair', description: 'A classic black, extra-long style for a dramatic finish.' },
+  { id: 12, name: 'Body Wave', price: 650, image: '/images/product-12.jpeg', category: 'Body Wave', description: 'Soft, flowing body-wave texture with a glamorous finish.' },
+  { id: 13, name: 'Maroon 30 Inches', price: 580, image: '/images/product-13.jpeg', category: 'Long Hair', description: 'A rich maroon long-hair option with a statement colour.' },
+  { id: 14, name: 'Ginger Full Frontal 28–30 Inches', price: 580, image: '/images/product-14.jpeg', category: 'Full Frontal', description: 'Ginger tones paired with a full-frontal finish.' },
+  { id: 15, name: 'Sleek Straight Style 28 Inches', price: 580, image: '/images/product-15.jpeg', category: 'Straight', description: 'A sleek, straight 28-inch style for a clean luxury look.' },
+  { id: 16, name: 'Lollie Pink', price: 580, image: '/images/product-16.jpeg', category: 'Synthetic', description: 'A playful pink statement style with a vibrant finish.' },
+  { id: 17, name: 'Kinky 24 Inches (Available in Black & Brown)', price: 580, image: '/images/product-17.jpeg', category: 'Kinky', description: 'Kinky texture available in classic black and warm brown.' },
+  { id: 18, name: 'Pre-plugged Black Water Weave', price: 770, image: '/images/product-18.jpeg', category: 'Water Weave', description: 'A pre-plugged black water weave prepared for a polished install.' },
+  { id: 19, name: 'Bubble Gum Pink', price: 630, image: '/images/product-19.jpeg', category: 'Synthetic', description: 'A vibrant bubble-gum pink look for a standout finish.' },
+  { id: 20, name: 'Piano 30 Inches', price: 570, image: '/images/product-20.jpeg', category: 'Long Hair', description: 'A beautiful two-tone piano style with 30-inch length.' },
+  { id: 21, name: 'Brown Water Weave Full Frontal', price: 580, image: '/images/product-21.jpeg', category: 'Full Frontal', description: 'A brown water-weave full frontal with a soft flowing texture.' },
+  { id: 22, name: 'Black Water Weave Full Frontal', price: 580, image: '/images/product-22.jpeg', category: 'Full Frontal', description: 'A classic black water-weave full frontal for a timeless look.' },
+  { id: 23, name: 'Chocolate Brown 30 Inches', price: 580, image: '/images/product-23.jpeg', category: 'Long Hair', description: 'A rich chocolate-brown shade with luxurious length.' },
+  { id: 25, name: 'Demure Queen 40 Inches', price: 750, image: '/images/product-25.jpeg', category: 'Long Hair', description: 'A statement 40-inch style available in Black, Brown, Blonde & Ginger.' },
+  { id: 26, name: 'Blonde Bob 10–12 Inches', price: 420, image: '/images/product-26.jpeg', category: 'Bob', description: 'A chic blonde bob with a clean, fashionable finish.' },
+  { id: 27, name: 'Synthetic Golden Diva', price: 710, image: '/images/product-27.jpeg', category: 'Synthetic', description: 'A golden synthetic style made to turn heads.' },
+  { id: 30, name: 'Maroon Rich Blend Full Blend (Pre-Order)', price: 580, image: '/images/product-30.jpeg', category: 'Rich Blend', description: 'A maroon rich blend full blend available on pre-order.' },
+  { id: 31, name: 'Latisha', price: 550, image: '/images/product-31.jpeg', category: 'Synthetic', description: 'A versatile synthetic style with a beautifully finished look.' },
+  { id: 35, name: 'Slight Blonde Cura Queen', price: 560, image: '/images/product-35.jpeg', category: 'Long Hair', description: 'A subtle blonde Cura Queen style with an elegant finish.' },
+  { id: 37, name: 'Cocoa Water Weave Full Frontal', price: 580, image: '/images/product-37.jpeg', category: 'Full Frontal', description: 'A cocoa-toned water-weave full frontal with a soft, flowing look.' },
+];
+
+const rules = [
+  'Orders only get processed after payment.',
+  'It takes 5–6 working days to process orders.',
+  'Lay-by is accepted; minimum deposit is R200.',
+  'No refunds unless the fault is from our side.',
+  'No hand deliveries.',
+  'No cash on delivery.',
+  'Make sure to provide correct delivery details and information.',
+];
+
+const deliveryOptions = [
+  { courier: 'Paxi', service: 'Standard', time: '3–5 working days', price: 120 },
+  { courier: 'Paxi', service: 'Economy', time: '7–9 working days', price: 70 },
+  { courier: 'The Courier Guy', service: 'Standard', time: '2–4 working days', price: 95 },
+  { courier: 'The Courier Guy', service: 'Express', time: '1 day', price: 125 },
+  { courier: 'The Courier Guy', service: 'Same Day', time: 'Same day — JHB, PTA, CPT & DBN metro cities', price: 140 },
+];
+
+const money = (amount: number) =>
+  new Intl.NumberFormat('en-ZA', { style: 'currency', currency: 'ZAR', maximumFractionDigits: 0 }).format(amount);
+
+export default function Home() {
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [query, setQuery] = useState('');
+  const [category, setCategory] = useState('All');
+  const [cartOpen, setCartOpen] = useState(false);
+  const [rulesOpen, setRulesOpen] = useState(true);
+  const [agreed, setAgreed] = useState(false);
+
+  // To mark an item as unavailable, add its product ID to this array.
+  // Example: const [soldOutIds] = useState<number[]>([2, 18]);
+  // Keep it empty while everything is available.
+  const [soldOutIds] = useState<number[]>([]);
+
+  const categories = useMemo(
+    () => ['All', ...Array.from(new Set(products.map((product) => product.category)))],
+    []
+  );
+
+  const filteredProducts = useMemo(() => {
+    const search = query.trim().toLowerCase();
+
+    return products.filter((product) => {
+      const matchesCategory = category === 'All' || product.category === category;
+      const matchesSearch =
+        !search ||
+        product.name.toLowerCase().includes(search) ||
+        product.category.toLowerCase().includes(search);
+
+      return matchesCategory && matchesSearch;
+    });
+  }, [category, query]);
+
+  const isSoldOut = (id: number) => soldOutIds.includes(id);
+
+  const addToCart = (product: Product) => {
+    if (!agreed || isSoldOut(product.id)) return;
+
+    setCart((current) => {
+      const existing = current.find((item) => item.id === product.id);
+
+      if (existing) {
+        return current.map((item) =>
+          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+        );
+      }
+
+      return [...current, { ...product, quantity: 1 }];
+    });
+
+    setCartOpen(true);
+  };
+
+  const removeFromCart = (id: number) => {
+    setCart((current) =>
+      current
+        .map((item) => (item.id === id ? { ...item, quantity: item.quantity - 1 } : item))
+        .filter((item) => item.quantity > 0)
+    );
+  };
+
+  const clearCart = () => setCart([]);
+
+  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+  const acceptRules = () => {
+    setAgreed(true);
+    setRulesOpen(false);
+  };
+
+  const checkout = () => {
+    if (!agreed) {
+      setRulesOpen(true);
+      return;
+    }
+
+    alert(
+      'Checkout is being prepared. Your payment gateway will be connected here once the payment provider is selected.'
+    );
+  };
+
+  return (
+    <main>
+      <div className="topbar">
+        <span>Nationwide delivery available</span>
+        <span>Queries: 0785314333 • kmsynthetichumanblends@gmail.com</span>
+      </div>
+
+      <header className="nav">
+        <a href="#home" className="brand" aria-label="KM Synthetics and Human Blends home">
+          <span className="brandMark">KM</span>
+          <span className="brandWords">
+            <strong>SYNTHETICS</strong>
+            <em>&amp; HUMAN BLENDS</em>
+          </span>
+        </a>
+
+        <nav className="navlinks">
+          <a href="#collection">Shop</a>
+          <a href="#delivery">Delivery</a>
+          <a href="#about">About</a>
+          <a href="#contact">Contact</a>
+        </nav>
+
+        <button
+          className="cartBtn"
+          onClick={() => {
+            if (!agreed) setRulesOpen(true);
+            else setCartOpen(true);
+          }}
+        >
+          Bag <span>{cartCount}</span>
+        </button>
+      </header>
+
+      <section className="hero" id="home">
+        <div className="heroShade" />
+        <div className="heroContent">
+          <p className="eyebrow">THE KM COLLECTION</p>
+          <h1>
+            <span>Beauty.</span>
+            <span>Boldness.</span>
+            <span className="goldText">Your Crown.</span>
+          </h1>
+          <p className="heroCopy">
+            Discover statement weaves, human blends and synthetic styles selected to help
+            you create the look you already see in your mind.
+          </p>
+          <div className="heroActions">
+            <a className="goldBtn" href="#collection">Shop the collection</a>
+            <a className="outlineBtn" href="#contact">Ask us a question</a>
+          </div>
+        </div>
+        <div className="heroSignature">
+          <span>KM</span>
+          <small>SYNTHETICS &amp; HUMAN BLENDS</small>
+        </div>
+      </section>
+
+      <section className="collection" id="collection">
+        <div className="sectionTop">
+          <div>
+            <p className="eyebrow pink">CURATED FOR YOU</p>
+            <h2>The Hair Edit</h2>
+            <p>Find your next signature look.</p>
+          </div>
+          <div className="searchWrap">
+            <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search hair..."
+              aria-label="Search products"
+            />
+          </div>
+        </div>
+
+        <div className="filters">
+          {categories.map((item) => (
+            <button
+              key={item}
+              className={`filter ${category === item ? 'active' : ''}`}
+              onClick={() => setCategory(item)}
+            >
+              {item}
+            </button>
+          ))}
+        </div>
+
+        {!agreed && (
+          <div className="orderNotice">
+            <span>🔒</span>
+            <div>
+              <strong>Orders are locked until you agree to our rules.</strong>
+              <p>Please review and accept the rules before adding anything to your bag.</p>
+            </div>
+            <button onClick={() => setRulesOpen(true)}>View rules</button>
+          </div>
+        )}
+
+        <div className="grid">
+          {filteredProducts.map((product) => {
+            const soldOut = isSoldOut(product.id);
+
+            return (
+              <article className={`card ${soldOut ? 'soldOut' : ''}`} key={product.id}>
+                <div className="imageWrap">
+                  <img src={product.image} alt={product.name} />
+                  <span className="categoryLabel">{product.category}</span>
+                  {soldOut && <div className="soldOverlay">SOLD OUT</div>}
+                </div>
+
+                <div className="cardInfo">
+                  <div className="productTitleRow">
+                    <h3>{product.name}</h3>
+                    <strong>{money(product.price)}</strong>
+                  </div>
+                  <p>{product.description}</p>
+
+                  <button
+                    className={`addBtn ${soldOut ? 'disabled' : ''}`}
+                    onClick={() => addToCart(product)}
+                    disabled={soldOut || !agreed}
+                  >
+                    {soldOut ? 'Sold Out' : !agreed ? 'Agree to order' : 'Add to bag'}
+                  </button>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+
+        {filteredProducts.length === 0 && (
+          <div className="empty">No styles matched your search.</div>
+        )}
+      </section>
+
+      <section className="about" id="about">
+        <div className="aboutBadge">KM</div>
+        <div>
+          <p className="eyebrow pink">OUR STORY</p>
+          <h2>Made to make you feel <span>unforgettable.</span></h2>
+          <p>
+            KM Synthetics &amp; Human Blends brings together versatile hair styles,
+            statement colours and everyday classics in one carefully curated collection.
+            Whether you want soft, sleek, bold or dramatic, there is a crown waiting for you.
+          </p>
+        </div>
+      </section>
+
+      <section className="delivery" id="delivery">
+        <div className="sectionTop compact">
+          <div>
+            <p className="eyebrow gold">DELIVERY</p>
+            <h2>Choose your route.</h2>
+          </div>
+          <p className="deliveryIntro">
+            We use Paxi and The Courier Guy. Delivery times begin after your order has been processed.
+          </p>
+        </div>
+
+        <div className="deliveryGrid">
+          {deliveryOptions.map((option) => (
+            <div className="deliveryCard" key={`${option.courier}-${option.service}`}>
+              <span>{option.courier}</span>
+              <h3>{option.service}</h3>
+              <p>{option.time}</p>
+              <strong>{money(option.price)}</strong>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="features">
+        <div className="feature">
+          <span>01</span>
+          <h3>Curated Selection</h3>
+          <p>Styles selected for different personalities, colours and moods.</p>
+        </div>
+        <div className="feature">
+          <span>02</span>
+          <h3>Nationwide Delivery</h3>
+          <p>Get your order delivered through our available courier options.</p>
+        </div>
+        <div className="feature">
+          <span>03</span>
+          <h3>Personal Queries</h3>
+          <p>Need help choosing? Contact us directly before placing your order.</p>
+        </div>
+      </section>
+
+      <section className="contact" id="contact">
+        <div>
+          <p className="eyebrow pink">LET'S TALK HAIR</p>
+          <h2>Have a question?</h2>
+          <p>For product queries, delivery questions, availability and assistance, reach us directly.</p>
+        </div>
+        <div className="contactCards">
+          <a href="tel:0785314333">
+            <span>PHONE / QUERIES</span>
+            <strong>078 531 4333</strong>
+          </a>
+          <a href="mailto:kmsynthetichumanblends@gmail.com">
+            <span>EMAIL</span>
+            <strong>kmsynthetichumanblends@gmail.com</strong>
+          </a>
+        </div>
+      </section>
+
+      <footer>
+        <div className="footerBrand">
+          <span className="brandMark">KM</span>
+          <div>
+            <strong>SYNTHETICS &amp; HUMAN BLENDS</strong>
+            <small>YOUR CROWN. YOUR STATEMENT.</small>
+          </div>
+        </div>
+        <p>© {new Date().getFullYear()} KM Synthetics &amp; Human Blends. All rights reserved.</p>
+        <button onClick={() => setRulesOpen(true)}>Rules &amp; Regulations</button>
+      </footer>
+
+      {cartOpen && agreed && (
+        <div className="overlay" onClick={() => setCartOpen(false)}>
+          <aside className="drawer" onClick={(event) => event.stopPropagation()}>
+            <div className="drawerHead">
+              <div>
+                <p className="eyebrow pink">YOUR SELECTION</p>
+                <h2>Your Bag</h2>
+              </div>
+              <button className="close" onClick={() => setCartOpen(false)}>×</button>
+            </div>
+
+            {cart.length === 0 ? (
+              <div className="emptyBag">
+                <span>♡</span>
+                <h3>Your bag is empty.</h3>
+                <p>Add something beautiful to get started.</p>
+              </div>
+            ) : (
+              <>
+                <div className="cartLines">
+                  {cart.map((item) => (
+                    <div className="line" key={item.id}>
+                      <img src={item.image} alt={item.name} />
+                      <div>
+                        <h3>{item.name}</h3>
+                        <p>{money(item.price)} × {item.quantity}</p>
+                        <button onClick={() => removeFromCart(item.id)}>Remove one</button>
+                      </div>
+                      <strong>{money(item.price * item.quantity)}</strong>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="cartBottom">
+                  <div className="total">
+                    <span>Subtotal</span>
+                    <strong>{money(subtotal)}</strong>
+                  </div>
+                  <p className="note">Delivery is calculated according to the courier option selected.</p>
+                  <button className="checkout" onClick={checkout}>Continue to payment</button>
+                  <button className="clearCart" onClick={clearCart}>Clear bag</button>
+                </div>
+              </>
+            )}
+          </aside>
+        </div>
+      )}
+
+      {rulesOpen && (
+        <div className="rulesOverlay">
+          <section className="rulesModal" role="dialog" aria-modal="true" aria-labelledby="rules-title">
+            <div className="rulesRibbon">PLEASE READ BEFORE ORDERING</div>
+            <div className="rulesLogo">KM</div>
+            <p className="eyebrow pink">KM SYNTHETICS &amp; HUMAN BLENDS</p>
+            <h2 id="rules-title">Before you place an order...</h2>
+            <p className="rulesIntro">
+              Please read our rules and delivery information carefully. You must agree to these
+              terms before adding products to your bag or completing a purchase.
+            </p>
+
+            <div className="rulesList">
+              {rules.map((rule, index) => (
+                <div className="rule" key={rule}>
+                  <span>{String(index + 1).padStart(2, '0')}</span>
+                  <p>{rule}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="rulesDelivery">
+              <strong>Delivery options</strong>
+              <p>
+                Paxi: R120 (3–5 working days) or R70 (7–9 working days). The Courier Guy:
+                R95 (2–4 working days), R125 (1 day), or R140 same-day delivery in JHB, PTA,
+                CPT &amp; DBN metro cities.
+              </p>
+            </div>
+
+            <button className="agreeBtn" onClick={acceptRules}>
+              I Agree to the Rules
+            </button>
+            <p className="rulesFooter">
+              You can continue browsing without agreeing, but ordering and checkout remain locked.
+            </p>
+          </section>
+        </div>
+      )}
+    </main>
+  );
+}
