@@ -48,6 +48,7 @@ const products: Product[] = [
 ];
 
 const rules = [
+  'Please know your hair. There will be no refunds for faults as a result of you not checking the hair you ordered.',
   'Orders only get processed after payment.',
   'It takes 5–6 working days to process orders.',
   'Lay-by is accepted; minimum deposit is R200.',
@@ -60,7 +61,6 @@ const rules = [
 const deliveryOptions = [
   { courier: 'Paxi', service: 'Standard', time: '3–5 working days', price: 120 },
   { courier: 'Paxi', service: 'Economy', time: '7–9 working days', price: 70 },
-  { courier: 'The Courier Guy', service: 'Standard', time: '2–4 working days', price: 95 },
   { courier: 'The Courier Guy', service: 'Express', time: '1 day', price: 125 },
   { courier: 'The Courier Guy', service: 'Same Day', time: 'Same day — JHB, PTA, CPT & DBN metro cities', price: 140 },
 ];
@@ -493,103 +493,7 @@ export default function Home() {
 
                         <button
                           onClick={() => removeFromCart(item.id)}
-                        >
-                          Remove one
-                        </button>
-                      </div>
 
-                      <strong>
-                        {money(item.price * item.quantity)}
-                      </strong>
-                    </div>
-                  ))}
-                </div>
 
-                <div className="cartBottom">
-                  <div className="total">
-                    <span>Subtotal</span>
-                    <strong>{money(subtotal)}</strong>
-                  </div>
-
-                  <p className="note">
-                    Delivery is calculated according to the courier option
-                    selected.
-                  </p>
-
-                  <button className="checkout" onClick={checkout}>
-                    Continue to payment
-                  </button>
-
-                  <button className="clearCart" onClick={clearCart}>
-                    Clear bag
-                  </button>
-                </div>
-              </>
-            )}
-          </aside>
-        </div>
-      )}
-
-      {rulesOpen && (
-        <div className="rulesOverlay">
-          <section
-            className="rulesModal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="rules-title"
-          >
-            <div className="rulesRibbon">
-              PLEASE READ BEFORE ORDERING
-            </div>
-
-            <div className="rulesLogo">KM</div>
-
-            <p className="eyebrow pink">
-              KM SYNTHETICS &amp; HUMAN BLENDS
-            </p>
-
-            <h2 id="rules-title">
-              Before you place an order...
-            </h2>
-
-            <p className="rulesIntro">
-              Please read our rules and delivery information carefully. You
-              must agree to these terms before adding products to your bag or
-              completing a purchase.
-            </p>
-
-            <div className="rulesList">
-              {rules.map((rule, index) => (
-                <div className="rule" key={rule}>
-                  <span>{String(index + 1).padStart(2, '0')}</span>
-                  <p>{rule}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="rulesDelivery">
-              <strong>Delivery options</strong>
-
-              <p>
-                Paxi: R120 (3–5 working days) or R70 (7–9 working days). The
-                Courier Guy: R95 (2–4 working days), R125 (1 day), or R140
-                same-day delivery in JHB, PTA, CPT &amp; DBN metro cities.
-              </p>
-            </div>
-
-            <button className="agreeBtn" onClick={acceptRules}>
-              I Agree to the Rules
-            </button>
-
-            <p className="rulesFooter">
-              You can continue browsing without agreeing, but ordering and
-              checkout remain locked.
-            </p>
-          </section>
-        </div>
-      )}
-    </main>
-  );
-}
 
 
