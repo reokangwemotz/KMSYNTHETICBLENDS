@@ -280,7 +280,7 @@ const products: Product[] = [
 ];
 
 const rules = [
-  'Please know your hair. There will be no refunds for faults as a result of you not checking the hair you ordered.',
+  'Please note that we sell synthetic hair, only proceed with the purchase if satisfied as there are no refunds for such queries.',
   'Orders only get processed after payment.',
   'It takes 5–6 working days to process orders.',
   'Lay-by is accepted; minimum deposit is R200.',
